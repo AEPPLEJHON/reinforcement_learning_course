@@ -31,15 +31,13 @@ def plot_policy(pi, title, pdf):
     plt.show()
 
 # TODO: 51 lines missing.
-raise NotImplementedError("Insert your solution and remove this error.")
+#raise NotImplementedError("Insert your solution and remove this error.")
 
 def warmup_states(): 
-    # TODO: 1 lines missing.
-    raise NotImplementedError("return state set")
+    return np.arange(0,20+1)
 
 def warmup_actions(): 
-    # TODO: 1 lines missing.
-    raise NotImplementedError("return action set")
+    return np.arange(0,15+1)
 
 def solve_kiosk_1(): 
     # TODO: 1 lines missing.
