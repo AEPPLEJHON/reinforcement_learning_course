@@ -40,8 +40,43 @@ def warmup_actions():
     return np.arange(0,15+1)
 
 def solve_kiosk_1(): 
+    N  = 14      # Horizon
+    ns = 20      # inventory Cap
+    no = 15      # Order Cap
+    co = 1.5     # Cost of Order
+    sp = 2.1     # Cost of Sell
+    
+    P_w = {0: 0.3, 3: 0.6, 6: 0.1} #PMF
+
+    S = list(range(ns + 1))
+    A = list(range(no + 1))
+
+    for x in S:
+        J[N][x] = 0.0
+
+    for k in range(N - 1, -1, -1):
+        for x in S:
+            best_u = None
+            best_val = float("inf")
+
+            for u in U:
+                q = 0.0
+                for w, p in P_w.items():
+                    g = co * u - sp *  min(x + u, w)
+                    x_next = min(ns, max(0, x + u - w))
+                    q += p * (g + J[k + 1][x_next])
+
+                if q < best_val:
+                    best_val = q
+                    best_u = u
+
+            J[k][x] = best_val
+            pi[k][x] = best_u
+
+    return J, pi
+
     # TODO: 1 lines missing.
-    raise NotImplementedError("Return cost and policy here (same format as DP_stochastic)")
+    #raise NotImplementedError("Return cost and policy here (same format as DP_stochastic)")
 
 def solve_kiosk_2(): 
     # TODO: 1 lines missing.
