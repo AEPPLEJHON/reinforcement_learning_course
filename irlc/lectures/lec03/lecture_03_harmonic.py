@@ -10,5 +10,5 @@ class NullAgent(Agent):
 
 if __name__ == "__main__":
     env = HarmonicOscilatorEnvironment(render_mode='human')
-    train(env, NullAgent(env), num_episodes=1, max_steps=200)
+    train(env, NullAgent(env), num_episodes=1, max_steps=1000)
     env.close()
