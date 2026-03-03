@@ -84,6 +84,10 @@ def go_east(map):
         * Use the GymPacmanEnvironment class. The report description will contain information about how to set it up, as will pacman_demo.py
         * Use this environment to get the first GameState, then use the recommended functions to go east
     """
+    env = PacmanEnvironment(layout_str=map)
+    s0, _ = env.reset()
+    print(s0)
+
     # TODO: 5 lines missing.
     raise NotImplementedError("Return the list of states pacman will traverse if he goes east until he wins the map")
     return states

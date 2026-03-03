@@ -39,49 +39,88 @@ def warmup_states():
 def warmup_actions(): 
     return np.arange(0,15+1)
 
-def solve_kiosk_1(): 
-    N  = 14      # Horizon
-    ns = 20      # inventory Cap
-    no = 15      # Order Cap
-    co = 1.5     # Cost of Order
-    sp = 2.1     # Cost of Sell
-    
-    P_w = {0: 0.3, 3: 0.6, 6: 0.1} #PMF
+def solve_kiosk_1():
+    N = 14
+    ns = 20
+    no = 15
+    c_o = 1.5
+    s_p = 2.1
+
+    P_w = {0: 0.3, 3: 0.6, 6: 0.1}
 
     S = list(range(ns + 1))
-    A = list(range(no + 1))
 
-    for x in S:
-        J[N][x] = 0.0
+    J = [{} for _ in range(N + 1)]
+    pi = [{} for _ in range(N)]
+
+    for x_N in S:
+        J[N][x_N] = 0.0
 
     for k in range(N - 1, -1, -1):
-        for x in S:
-            best_u = None
+        for x_k in S:
             best_val = float("inf")
+            best_u = None
 
-            for u in U:
+            for u_k in range(no + 1):
                 q = 0.0
-                for w, p in P_w.items():
-                    g = co * u - sp *  min(x + u, w)
-                    x_next = min(ns, max(0, x + u - w))
-                    q += p * (g + J[k + 1][x_next])
+                for w_k, p in P_w.items():
+                    g_k = c_o * u_k - s_p * min(x_k + u_k, w_k)
+                    x_k1 = min(ns, max(0, x_k + u_k - w_k))
+                    q += p * (g_k + J[k + 1][x_k1])
 
                 if q < best_val:
                     best_val = q
-                    best_u = u
+                    best_u = u_k
 
-            J[k][x] = best_val
-            pi[k][x] = best_u
+            J[k][x_k] = best_val
+            pi[k][x_k] = best_u
 
     return J, pi
 
     # TODO: 1 lines missing.
     #raise NotImplementedError("Return cost and policy here (same format as DP_stochastic)")
 
-def solve_kiosk_2(): 
-    # TODO: 1 lines missing.
-    raise NotImplementedError("Return cost and policy here (same format as DP_stochastic)")
 
+def solve_kiosk_2():
+    N = 14
+    ns = 20
+    no = 15
+    c_o = 1.5
+    s_p = 2.1
+    p = 1/5
+
+    P_w = {w: binom.pmf(w, ns, p) for w in range(ns + 1)}
+
+    S = list(range(ns + 1))
+
+    J = [{} for _ in range(N + 1)]
+    pi = [{} for _ in range(N)]
+
+    for x_N in S:
+        J[N][x_N] = 0.0
+
+    for k in range(N - 1, -1, -1):
+        for x_k in S:
+            best_val = float("inf")
+            best_u = None
+
+            for u_k in range(no + 1):
+                q = 0.0
+                for w_k, pw in P_w.items():
+                    x_raw = x_k + u_k - w_k
+                    x_k1 = min(ns, max(0, x_raw))
+                    excess = max(0, x_raw - ns)
+                    g_k = c_o * u_k - s_p * min(x_k + u_k, w_k) + 3 * excess
+                    q += pw * (g_k + J[k + 1][x_k1])
+
+                if q < best_val:
+                    best_val = q
+                    best_u = u_k
+
+            J[k][x_k] = best_val
+            pi[k][x_k] = best_u
+
+    return J, pi
 
 def main():
     # Problem 14
