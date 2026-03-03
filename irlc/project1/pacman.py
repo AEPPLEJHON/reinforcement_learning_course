@@ -47,7 +47,7 @@ datadiscs = """
 """
 
 # TODO: 30 lines missing.
-raise NotImplementedError("Put your own code here")
+#raise NotImplementedError("Put your own code here")
 
 def p_next(x : GameState, u: str): 
     """ Given the agent is in GameState x and takes action u, the game will transition to a new state xp.
@@ -64,10 +64,10 @@ def p_next(x : GameState, u: str):
         * The slightly tricky part is that when there are multiple ghosts, different actions by the individual ghosts may lead to the same final state
         * Check the probabilities sum to 1. This will be your main way of debugging your code and catching issues relating to the previous point.
     """
-    # TODO: 8 lines missing.
-    raise NotImplementedError("Return a dictionary {.., xp: p, ..} where xp is a possible next state and p the probability")
-    return states
+    states = {x.f(u):1}
 
+    #raise NotImplementedError("Return a dictionary {.., xp: p, ..} where xp is a possible next state and p the probability")
+    return states
 
 def go_east(map): 
     """ Given a map-string map (see examples in the top of this file) that can be solved by only going east, this will return
@@ -85,8 +85,14 @@ def go_east(map):
         * Use this environment to get the first GameState, then use the recommended functions to go east
     """
     env = PacmanEnvironment(layout_str=map)
-    s0, _ = env.reset()
-    print(s0)
+    x, _ = env.reset() #initialize env
+    S = [x] #create list
+    while not x.is_won(): #go east until victory state
+        x = x.f("East")
+        S.append(x)
+    env.close()
+    return S
+
 
     # TODO: 5 lines missing.
     raise NotImplementedError("Return the list of states pacman will traverse if he goes east until he wins the map")
@@ -94,7 +100,8 @@ def go_east(map):
 
 def get_future_states(x, N): 
     # TODO: 4 lines missing.
-    raise NotImplementedError("return a list-of-list of future states [S_0, ... ,S_N]. Each S_k is a state space, i.e. a list of GameState objects.")
+    #raise NotImplementedError("return a list-of-list of future states [S_0, ... ,S_N].
+    #Each S_k is a state space, i.e. a list of GameState objects.")
     return state_spaces
 
 def win_probability(map, N=10): 
