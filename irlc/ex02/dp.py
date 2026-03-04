@@ -50,8 +50,12 @@ def DP_stochastic(model: DPModel) -> tuple[list[dict], list[dict]]:
             (for help, google: `python find key in dictionary with minimum value').
             Then you can use this to update J[k][x] = Q_umin and pi[k][x] = umin.
             """
-            # TODO: 4 lines missing.
-            raise NotImplementedError("Insert your solution and remove this error.")
+            Q = {u: sum(p * (model.g(x, u, w, k) + J[k + 1][model.f(x, u, w, k)])
+                         for w, p in model.Pw(x, u, k).items())
+                 for u in model.A(x, k)}
+            umin = min(Q, key=Q.get)
+            J[k][x] = Q[umin]
+            pi[k][x] = umin
             """
             After the above update it should be the case that:
 
