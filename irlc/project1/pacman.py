@@ -93,15 +93,21 @@ def go_east(map):
     env.close()
     return S
 
-
-    # TODO: 5 lines missing.
-    raise NotImplementedError("Return the list of states pacman will traverse if he goes east until he wins the map")
-    return states
-
 def get_future_states(x, N): 
     # TODO: 4 lines missing.
     #raise NotImplementedError("return a list-of-list of future states [S_0, ... ,S_N].
     #Each S_k is a state space, i.e. a list of GameState objects.")
+
+    state_spaces = [[x]]
+
+    for k in range(N):
+        S = set() #prevents duplicates
+        for x in state_spaces[k]:
+            for u in x.A():
+                for xp in p_next(x,u).keys():
+                    S.add(xp)
+        state_spaces.append(list(S))
+
     return state_spaces
 
 def win_probability(map, N=10): 
