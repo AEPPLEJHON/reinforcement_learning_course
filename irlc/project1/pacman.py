@@ -49,7 +49,7 @@ datadiscs = """
 # TODO: 30 lines missing.
 #raise NotImplementedError("Put your own code here")
 
-class ShortestPathDPModel(DPModel): #structure copied from exercise 2
+class ShortestPathDPModel(DPModel):
     def __init__(self, x0: GameState, N: int):
         super().__init__(N=N)
         self._S = get_future_states(x0, N)
@@ -75,6 +75,33 @@ class ShortestPathDPModel(DPModel): #structure copied from exercise 2
 
     def gN(self, x: GameState) -> float:
         return 0.0 if x.is_won() else 1e9 #punish loss heavily
+    
+class WinProbDPModel(DPModel):
+    def __init__(self, x0: GameState, N: int):
+        super().__init__(N=N)
+        self._S = get_future_states(x0, N)
+
+    def S(self, k: int):
+        return self._S[k]
+
+    def A(self, x: GameState, k: int):
+        if x.is_won() or x.is_lost():
+            return {"Stop"}
+        return set(x.A())
+
+    def Pw(self, x: GameState, u, k: int):
+        if x.is_won() or x.is_lost():
+            return {x: 1.0}
+        return p_next(x, u)
+
+    def f(self, x, u, w, k: int):
+        return w
+
+    def g(self, x: GameState, u, w: GameState, k: int) -> float:
+        return 0.0  #steps dont matter
+
+    def gN(self, x: GameState) -> float:
+        return -1.0 if x.is_won() else 0.0
 
 
 def p_next(x : GameState, u: str): 
@@ -163,9 +190,14 @@ def get_future_states(x, N):
 
 def win_probability(map, N=10): 
     """ Assuming you get a reward of -1 on wining (and otherwise zero), the win probability is -J_pi(x_0). """
-    # TODO: 5 lines missing.
-    raise NotImplementedError("Return the chance of winning the given map within N steps or less.")
-    return win_probability
+    env = PacmanEnvironment(layout_str=map)
+    x0, _ = env.reset()
+
+    model = WinProbDPModel(x0, N)
+    J, _ = DP_stochastic(model)
+
+    env.close()
+    return -J[0][x0]
 
 def shortest_path(map, N=10): 
     """ If each move has a cost of 1, the shortest path is the path with the lowest cost.

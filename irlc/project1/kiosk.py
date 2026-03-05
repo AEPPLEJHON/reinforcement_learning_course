@@ -33,6 +33,66 @@ def plot_policy(pi, title, pdf):
 # TODO: 51 lines missing.
 #raise NotImplementedError("Insert your solution and remove this error.")
 
+class Kiosk1DPModel(DPModel):
+    def __init__(self):
+        self.N = 14
+        self.ns = 20
+        self.no = 15
+        self.co = 1.5
+        self.sp = 2.1
+        self.Pw_dict = {0:0.3, 3:0.6, 6:0.1}
+        super().__init__(N=self.N)
+
+    def S(self, k):
+        return set(range(self.ns + 1))
+
+    def A(self, x, k):
+        return set(range(self.no + 1))
+
+    def Pw(self, x, u, k):
+        return self.Pw_dict
+
+    def f(self, x, u, w, k):
+        return min(self.ns, max(0, x + u - w))
+
+    def g(self, x, u, w, k):
+        return self.co*u - self.sp*min(x+u, w)
+
+    def gN(self, x):
+        return 0
+    
+class Kiosk2DPModel(DPModel):
+    def __init__(self):
+        self.N = 14
+        self.ns = 20
+        self.no = 15
+        self.co = 1.5
+        self.sp = 2.1
+        p = 1/5
+        self.Pw_dict = {w: binom.pmf(w, self.ns, p) for w in range(self.ns+1)}
+        super().__init__(N=self.N)
+
+    def S(self, k):
+        return set(range(self.ns + 1))
+
+    def A(self, x, k):
+        return set(range(self.no + 1))
+
+    def Pw(self, x, u, k):
+        return self.Pw_dict
+
+    def f(self, x, u, w, k):
+        x_raw = x + u - w
+        return min(self.ns, max(0, x_raw))
+
+    def g(self, x, u, w, k):
+        x_pre = x + u - w
+        excess = max(0, x_pre - self.ns)
+        return self.co*u - self.sp*min(x+u, w) + 3*excess
+
+    def gN(self, x):
+        return 0
+
 def warmup_states(): 
     return np.arange(0,20+1)
 
@@ -40,49 +100,12 @@ def warmup_actions():
     return np.arange(0,15+1)
 
 def solve_kiosk_1():
-    N = 14
-    ns = 20
-    no = 15
-    co = 1.5
-    sp = 2.1
+    model = Kiosk1DPModel()
+    return DP_stochastic(model)
 
-    P_W = {0: 0.3, 3: 0.6, 6: 0.1}
-
-    S = list(range(ns + 1))
-    A = list(range(no + 1))
-
-    J = [dict() for _ in range(N + 1)]
-    pi = [dict() for _ in range(N)]
-
-    #Terminal cost
-    for x_N in S:
-        J[N][x_N] = 0.0
-
-    #Backwards propogation
-    for k in range(N - 1, -1, -1): #numerate backwards to 0
-        for x_k in S:
-
-            Q_k = {}
-
-            for u_k in A:
-                val = 0.0
-
-                for w_k, p in P_W.items():
-                    x_k1 = min(ns, max(0, x_k + u_k - w_k))
-                    g_k = co * u_k - sp * min(x_k + u_k, w_k)
-                    val += p * (g_k + J[k + 1][x_k1])
-
-                Q_k[u_k] = val
-
-            u_star = min(Q_k, key=Q_k.get)
-            J[k][x_k] = Q_k[u_star]
-            pi[k][x_k] = u_star
-
-    return J, pi
-
-def solve_kiosk_2(): 
-    # TODO: 1 lines missing.
-    raise NotImplementedError("Return cost and policy here (same format as DP_stochastic)")
+def solve_kiosk_2():
+    model = Kiosk2DPModel()
+    return DP_stochastic(model)
 
 
 def main():
